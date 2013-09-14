@@ -4,8 +4,7 @@
   "manifest_version": 2,
   "description": "whisper",
   "browser_action": {
-    "default_icon": "img/icon-tiny.png",
-    "default_popup": "popup.html"
+    "default_icon": "img/icon-tiny.png"
   },
   "minimum_chrome_version": "6",
   "permissions": [ "contextMenus", "tabs", "storage", 
