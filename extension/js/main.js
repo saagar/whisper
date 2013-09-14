@@ -67,12 +67,22 @@ function decrypt (element)
   }
 }
 	
-// AES decryption using group id to get the private key
-function decrypt_msg(group_id, msg)
+// decryption. only decrypts if user is the user_id
+// if so, attempts to use the user's private key to decrypt.
+function decrypt_msg(user_id, msg)
 {
+	$.getJSON('http://whisper-signalfire.herokuapp.com/keystore/user').done(function(data){
+		user_logged_in = data.user;
+	});
+
+	if (user_id === user_logged_in){
+		// unecrypt using user's private key later
+		return rot13(msg);
+	}
+	return "[Whisper] You don't have access to this message. [/Whisper]";
+
 	// var key = EncryptedForms.groups[group_id];
 	// if (key == null ){
-		return msg; // TEMPORARY
 		//return "You don't have access to this message.";
 	// }
 	// else
