@@ -16,7 +16,7 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["js/jquery-1.8.3.min.js", "js/jquery.livequery.js",  "js/main.js", "js/EncryptedForms.js", "js/aes.js"]
+      "js": ["js/jquery-1.8.3.min.js", "openpgp/resources/openpgp.js", "js/jquery.livequery.js",  "js/main.js", "js/EncryptedForms.js", "js/aes.js"]
     }
   ],
   "icons": {  

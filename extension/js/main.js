@@ -3,6 +3,8 @@ var clickedEl = null;
 var _groups = null;
 var user_logged_in = null;
 
+openpgp.init();
+
 document.addEventListener("mousedown", function(event){
     //right click
     if(event.button === 2) { 
@@ -47,8 +49,6 @@ function wispRegexReplacer(match, sender, recipient, senderMessage, recipientMes
   return decrypt_msg(sender, recipient, senderMessage, recipientMessage);
 }
 
-// AES encryption
-// key is private key
 // value is text
 function encrypt(key, group_id, value){
   //encrypted = CryptoJS.AES.encrypt(value, key);
@@ -59,26 +59,21 @@ function encrypt(key, group_id, value){
     + encrypted + " [//wisp]";
 }
 
-// AES decrypt, after parsing the tag. calls decrypt_msg
+// Scan element for wisp tags and decrypt if possible.
 function decrypt (element) {
   var html = $(element).find('*:contains("[//wisp]")');
   // console.log(html.length, element);
   if (html.length > 0) {
     for (var i = html.length-1; i >= 0; i--) {
       var ele = $(html[i]);
+      // Only replace text in elements with no children. Works as long as text
+      // is not weirdly formatted.
       if(ele.children().length > 0) continue;
-      // console.log(ele.text());
+
       var text = ele.html();
-      // console.log(user_logged_in, text);
       if (text.indexOf("[!wisp | ") != -1 && text.indexOf("[//wisp]") != -1)
       {
-        // var result = text.split("[")[1].split("]");
-        // var number = result[0].split("|")[1].trim();
-        // var encrypted = result[1].trim();
-        // ele.text(decrypt_msg(number, encrypted));
         ele.text(text.replace(wispRegex, wispRegexReplacer));
-        // ele.html(text);
-        // decrypt();
       }
     }
   }

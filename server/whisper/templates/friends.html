@@ -1,0 +1,16 @@
+<html>
+    {% for item in friends %}
+        {{item}}<br/>
+    {% empty %}
+    <p>No friends :( #nonewfriends</p>
+    {% endfor %}
+    <form method="post" action="/keystore/user/friends/add/">
+        {% csrf_token %}
+        <label for="username">Friend username</label>
+        <input type="text" name="username" />
+        <input type="submit" value="Add" name="submit-button" class="narrow-button" />
+
+    </form>
+
+
+</html>
