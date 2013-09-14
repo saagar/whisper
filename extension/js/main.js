@@ -10,17 +10,15 @@ document.addEventListener("mousedown", function(event){
 }, true);
 	
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
-	if(request.method == "enableEncrypt")
-	{
-		EncryptedForms.add(clickedEl);
-    }
-	if(request.method == "enableDecrypt")
-	{
+  console.log(request);
+	if(request.method == "enableEncrypt") {
+		encryptedFormHandler.addInput(clickedEl, request.friendName);
+  }
+	if(request.method == "enableDecrypt") {
 		decrypt();
-    }
-	if(request.method == "newGroup")
-	{
-		EncryptedForms.syncGroups();
+  }
+	if(request.method == "newGroup") {
+		encryptedFormHandler.syncGroups();
 	}
 });
 
@@ -51,7 +49,6 @@ function encrypt(key, group_id, value){
 function decrypt (element)
 {
   var html = $(element).find('*:contains("[!wisp | ")');
-  console.log(html, element);
   if (html.length > 0)
   {
 	 for (var i = html.length-1; i >= 0; i--)
@@ -73,17 +70,17 @@ function decrypt (element)
 // AES decryption using group id to get the private key
 function decrypt_msg(group_id, msg)
 {
-	var key = EncryptedForms.groups[group_id];
-	if (key == null ){
+	// var key = EncryptedForms.groups[group_id];
+	// if (key == null ){
 		return msg; // TEMPORARY
 		//return "You don't have access to this message.";
-	}
-	else
-	{
-		var aes = new pidCrypt.AES.CBC();
-		var decrypted = aes.decryptText(msg, key, {nBits: 256});
-		return decrypted;
-	}
+	// }
+	// else
+	// {
+	// 	var aes = new pidCrypt.AES.CBC();
+	// 	var decrypted = aes.decryptText(msg, key, {nBits: 256});
+	// 	return decrypted;
+	// }
 }
 
 // gets locally stored username information
