@@ -180,13 +180,22 @@ function encrypt(key, group_id, value){
 
   var ciphertext = btoa(pgpEncrypt(getArmoredPublicKey(keypair2), value));
 
-  $.getJSON("http://whisper-signalfire.herokuapp.com/keystore/user/get/" + group_id + "/",
-    function(data) {
-      console.log(data);
+  var keyData;
+  $.ajax({
+    url: "http://whisper-signalfire.herokuapp.com/keystore/user/get/" + group_id + "/",
+    dataType: 'json',
+    async: false,
+    success: function(data) {
+      keyData = data;
+    }
   });
+
+  console.log(keyData);
 
   console.log(ciphertext);
   console.log(btoa(ciphertext));
+
+  var recipientCiphertext = btoa(pgpEncrypt(keyData.key, value));
 
   var plaintext = pgpDecrypt(getArmoredPrivateKey(keypair2), atob(ciphertext), "");
   console.log(plaintext);
@@ -195,7 +204,7 @@ function encrypt(key, group_id, value){
   // var encrypted = aes.encryptText(value, key, {nBits: 256});
   var encrypted = rot13(value); // this is temporary, rewrite this later
   return "[!wisp | " + user_logged_in + " | " +  group_id + "]" + ciphertext + "|"
-    + encrypted + "[//wisp]";
+    + recipientCiphertext + "[//wisp]";
 }
 
 // Scan element for wisp tags and decrypt if possible.
@@ -260,10 +269,20 @@ function decrypt_msg(sender, recipient, senderMessage, recipientMessage)
     if (!decrypted) {
       return "[whisper] Undecryptable message. [//whisper]";
     }
-    return "(wisp to " + recipient + "): " +
-      decrypted;
+    return "(wisp to " + recipient + "): " + decrypted;
   } else if (recipient === user_logged_in) {
-    return "(wisp from " + sender + "): " + rot13(recipientMessage);
+    var unb64 = null;
+    try {
+      unb64 = atob(recipientMessage);
+    } catch(err) {
+      return "[whisper] Undecryptable message. [//whisper]"; 
+    }
+    // unecrypt using user's private key later
+    var decrypted = pgpDecrypt(getArmoredPrivateKey(keypair2), unb64, "");
+    if (!decrypted) {
+      return "[whisper] Undecryptable message. [//whisper]";
+    }
+    return "(wisp from " + sender + "): " + decrypted;
   }
   return "[whisper] You don't have access to this message. [//whisper]";
 
