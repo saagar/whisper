@@ -77,7 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
 				chrome.storage.local.set({'username' : null});
 				chrome.storage.local.set({'pw' : null});
 				chrome.storage.local.set({'groups' : {}});
-				EncryptedForms.groups = {};
 			}
 		});
 	});

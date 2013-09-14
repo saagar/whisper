@@ -1,10 +1,10 @@
 function attach(friendName){
-  return function(e) {
+  return function(){ return function(e) {
     chrome.tabs.getSelected(null, function(tab) {
       chrome.tabs.sendMessage(tab.id, 
         {method: "enableEncrypt", friendName: friendName}, null);
     }); 
-  };
+  }}();
 }
 
 
