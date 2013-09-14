@@ -33,6 +33,10 @@ function getArmoredPrivateKey(keypair) {
   return keypair.privateKeyArmored;
 }
 
+function getUnarmoredPrivateKey(keypair) {
+  return keypair.privateKey.valueOf();
+}
+
 
 
 // need a private armored key - password should be blank for now
@@ -90,15 +94,8 @@ function failAndWarn() {
 // need a public armored key
 function encrypt(publicKey, plaintext) {
   if (window.crypto.getRandomValues) {
-
     var publicKeyObject = openpgp.read_publicKey(publicKey);
-
     return openpgp.write_encrypted_message(publicKeyObject, plaintext);
-  // // var publicKey = openpgp.read_publicKey(keypair2.publicKeyArmored);
-  // // ciphertext = openpgp.write_encrypted_message(publicKey, "Hello World!");
-  //   var publicKeyObject = openpgp.read_publicKey(publicKey);
-  //   ciphertext = openpgp.write_encrypted_message(publicKeyObject, plaintext);
-  //   return ciphertext;
   }
   return failAndWarn();
 }
@@ -107,7 +104,7 @@ function setup() {
   //openpgp.init();
   initializeOpenPGP();
 
-  var keypair2 = generateKeyPair(1, 1024, "Amy Tai", "noob@pton.edu", "");
+  keypair2 = generateKeyPair(1, 1024, "Amy Tai", "noob@pton.edu", "");
 
   printm(keypair2);
 
@@ -122,21 +119,98 @@ function setup() {
   var plaintext = decrypt(getArmoredPrivateKey(keypair2), ciphertext, "");
   printm(plaintext);
 
+
+  // testing signing
   // printm("testing signing");
 
-  // var serverKey = generateKeyPair(1, 1024, "Aeneas Server", "server@aeneas.comp", "")
+  // serverKey = generateKeyPair(1, 1024, "Aeneas Server", "server@aeneas.comp", "")
 
-  // take requested text and sign with server private key
-  // take requesting user's public key and encrypt message
-  // signed_cipher_text = openpgp.write_signed_and_encrypted_message(getArmoredPrivateKey(serverKey), publicKey, text);
+  // // take requested text and sign with server private key
+  // // take requesting user's public key and encrypt message
+  // var priv_key_server = openpgp.read_privateKey(getArmoredPrivateKey(serverKey));
+  // var pub_key_user = openpgp.read_publicKey(getArmoredPublicKey(keypair2))
+  // //openpgp.read_privateKey(getUnarmoredPrivateKey(serverKey))
+
+  // signed_cipher_text = openpgp.write_signed_and_encrypted_message(priv_key_server[0], pub_key_user, "text");
+  // printm(signed_cipher_text);
+  //signed_cipher_text = openpgp.write_signed_and_encrypted_message(getArmoredPrivateKey(serverKey), publicKey, text);
 
   // printm(signed_cipher_text);
 
   // decrypt message with requesting user's private key
   // verify server signature with server pub key
 
+//decrypt code
+  // serverPubKey = openpgp.read_publicKey(getArmoredPublicKey(serverKey));
+  // if (serverPubKey == null)
+  //   util.print_error("Unable to read server public key");
+  // openpgp.keyring.importPublicKey(getArmoredPublicKey(serverKey));
 
+
+  // signed_plaintext = decrypt(getArmoredPrivateKey(keypair2), signed_cipher_text, "");
+  // printm(signed_plaintext);
+
+
+///unit test code
+//     printm("BLAH");
+//     var priv_key = openpgp.read_privateKey(getArmoredPrivateKey(serverKey));
+//     var pub_key = openpgp.read_publicKey(getArmoredPublicKey(keypair2));
+//     if (priv_key.length < 1) {
+//       util.print_error("No private key found!")
+//       return;
+//     }
+//     if (pub_key < 1) {
+//       util.print_error("No public key found!")
+//       return;
+//     }
+//     if (!priv_key[0].decryptSecretMPIs("")) {
+//       util.print_error("Password for secrect key was incorrect!");
+//       return;
+//     }
+//     printm(openpgp.write_signed_and_encrypted_message(priv_key[0],pub_key,"test"));
+
+// // unit test decrypt
+//     var pub_key = openpgp.read_publicKey(getArmoredPublicKey(serverKey));
+//     if (pub_key == null)
+//       util.print_error("Unable to read public key");
+//     openpgp.keyring.importPublicKey(getArmoredPublicKey(serverKey));
+
+
+//     var priv_key = openpgp.read_privateKey(getArmoredPrivateKey(keypair2));
+
+//     if (priv_key.length < 1) {
+//       util.print_error("No private key found!")
+//       return;
+//     }
+
+//     var msg = openpgp.read_message(signed_cipher_text);
+//     var keymat = null;
+//     var sesskey = null;
+//     // Find the private (sub)key for the session key of the message
+//     for (var i = 0; i< msg[0].sessionKeys.length; i++) {
+//       if (priv_key[0].privateKeyPacket.publicKey.getKeyId() == msg[0].sessionKeys[i].keyId.bytes) {
+//         keymat = { key: priv_key[0], keymaterial: priv_key[0].privateKeyPacket};
+//         sesskey = msg[0].sessionKeys[i];
+//         break;
+//       }
+//       for (var j = 0; j < priv_key[0].subKeys.length; j++) {
+//         if (priv_key[0].subKeys[j].publicKey.getKeyId() == msg[0].sessionKeys[i].keyId.bytes) {
+//           keymat = { key: priv_key[0], keymaterial: priv_key[0].subKeys[j]};
+//           sesskey = msg[0].sessionKeys[i];
+//           break;
+//         }
+//       }
+//     }
+//     if (keymat != null) {
+//       if (!keymat.keymaterial.decryptSecretMPIs("")) {
+//         util.print_error("Password for secrect key was incorrect!");
+//         return;
+
+//       }
+//       printm(msg[0].decrypt(keymat, sesskey));
+//     } else {
+//       util.print_error("No private key found!");
+//     }
 }
-
 
 setup();
