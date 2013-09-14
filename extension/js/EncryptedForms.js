@@ -71,11 +71,13 @@ var EncryptedFormHandler = function() {
 			if (!$(element).data("listener")) {
 				$(element).parent().get(0).addEventListener('keydown', function(e) { 
 					console.log(clickedEl.value);
+					decrypt(document);
 					if (!e.shiftKey && e.keyCode === 13) { 
 						// If enter is pressed, encrypt the value in the input
 						clickedEl.value = encrypt("",
 							$(element).data("whisper-friend"),
 							clickedEl.value);
+						// setTimeout(1000, function(){decrypt(document)});
 						return false;
 					} 
 				}, true);

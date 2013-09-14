@@ -228,13 +228,11 @@ function decrypt (element) {
           .remove()   //remove all the children
           .end()  //again go back to selected element
           .text();
-        console.log(ele.html());
         var textWithoutBreaks = $.map(ele.find('span'), function(el){return $(el).text();}).join('') + parentText;
         ele.text(textWithoutBreaks.replace(wispRegex, wispRegexReplacer));
       } else {
 
         var text = ele.html();
-        console.log(text);
         if (text.indexOf("[!wisp | ") != -1 && text.indexOf("[//wisp]") != -1)
         {
           ele.text(text.replace(wispRegex, wispRegexReplacer));
@@ -256,7 +254,7 @@ $.getJSON('http://whisper-signalfire.herokuapp.com/keystore/user').done(function
 // if so, attempts to use the user's private key to decrypt.
 function decrypt_msg(sender, recipient, senderMessage, recipientMessage)
 {
-  console.log(senderMessage);
+  // console.log(senderMessage);
   if (sender === user_logged_in){
     var unb64 = null;
     try {
@@ -277,6 +275,7 @@ function decrypt_msg(sender, recipient, senderMessage, recipientMessage)
     } catch(err) {
       return "[whisper] Undecryptable message. [//whisper]"; 
     }
+    // console.log(unb64);
     // unecrypt using user's private key later
     var decrypted = pgpDecrypt(getArmoredPrivateKey(keypair2), unb64, "");
     if (!decrypted) {
