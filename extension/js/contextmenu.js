@@ -6,18 +6,6 @@ function attach(e)
 	
 }
 
-// NEED IT TO LOOK LIKE THE FOLLOWING FORLOOP EVENTUALLY, TO HAVE MULTIPLE 
-// GROUPS SHOW UP ON CONTEXT MENU WHEN ENCRYPTING
-
-// function setMenu(groups) {
-// 	var differentGroups = groups.split();
-// 	for (var i = differentGroups.length - 1; i >= 0; i--) {
-// 		chrome.contextMenus.create ({
-// 			title:differentGroups[i], contexts:["editable"], onclick:attach,
-// 		});
-// 	};
-// }
-
 // // chrome.contextMenus.create ({
 // // 	title:"Encrypt with Whisper", contexts:["editable"], onclick:attach,
 // // });
@@ -37,6 +25,15 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
 	
 });
 
-chrome.contextMenus.create ({
-	title:"Encrypt with Whisper", contexts:["editable"], onclick:attach
+// Add a context menu item for each friend.
+$.getJSON('http://whisper-signalfire.herokuapp.com/keystore/user/friends').done(function(data){
+  var friends = data.friends;
+  console.log(data);
+  for (var i = 0; i < friends.length; i++) {
+    chrome.contextMenus.create ({
+      title:"Whisper to " + friends[i], contexts:["editable"], onclick:attach
+    });
+  }
 });
+
+console.log("FUCK");

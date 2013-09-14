@@ -8,9 +8,10 @@
     "default_popup": "popup.html"
   },
   "minimum_chrome_version": "6",
-  "permissions": [ "contextMenus", "tabs", "storage" ],
+  "permissions": [ "contextMenus", "tabs", "storage", 
+    "http://whisper-signalfire.herokuapp.com/" ],
   "background": {
-    "scripts": ["js/contextmenu.js"]
+    "scripts": ["js/jquery-1.8.3.min.js", "js/contextmenu.js"]
   },
   "web_accessible_resources" : ["img/lock.png"],
   "content_scripts": [

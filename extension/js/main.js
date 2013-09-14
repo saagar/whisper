@@ -4,7 +4,7 @@ var _groups = null;
 
 document.addEventListener("mousedown", function(event){
     //right click
-    if(event.button == 2) { 
+    if(event.button === 2) { 
         clickedEl = event.target;
     }
 }, true);
@@ -51,6 +51,7 @@ function encrypt(key, group_id, value){
 function decrypt (element)
 {
   var html = $(element).find('*:contains("[!wisp | ")');
+  console.log(html, element);
   if (html.length > 0)
   {
 	 for (var i = html.length-1; i >= 0; i--)
@@ -74,7 +75,7 @@ function decrypt_msg(group_id, msg)
 {
 	var key = EncryptedForms.groups[group_id];
 	if (key == null ){
-		return msg // TEMPORARY
+		return msg; // TEMPORARY
 		//return "You don't have access to this message.";
 	}
 	else
@@ -86,23 +87,23 @@ function decrypt_msg(group_id, msg)
 }
 
 // gets locally stored username information
-chrome.storage.local.get(["username", "pw"], function(data)
-{
-	$.getJSON("http://www.projectvoid.com/whisper/whisper_controller.php?action=retrieve&username="+data['username']+"&pw="+data['pw'], function (data)
-	{
-		_groups = data['groups'];
-		chrome.storage.local.get("groups", function(data)
-		{
-			if (_groups != [] && _groups != null)
-			{
-				var groups = data['groups'];
-				for (var i = 0; i < _groups.length; i++)
-				{
-					groups[_groups[i][0]] = _groups[i][1];
-				}
-				chrome.storage.local.set({"groups" : groups });
-			}
-		});
+// chrome.storage.local.get(["username", "pw"], function(data)
+// {
+// 	$.getJSON("http://www.projectvoid.com/whisper/whisper_controller.php?action=retrieve&username="+data['username']+"&pw="+data['pw'], function (data)
+// 	{
+// 		_groups = data['groups'];
+// 		chrome.storage.local.get("groups", function(data)
+// 		{
+// 			if (_groups != [] && _groups != null)
+// 			{
+// 				var groups = data['groups'];
+// 				for (var i = 0; i < _groups.length; i++)
+// 				{
+// 					groups[_groups[i][0]] = _groups[i][1];
+// 				}
+// 				chrome.storage.local.set({"groups" : groups });
+// 			}
+// 		});
 		
-	});
-});
+// 	});
+// });

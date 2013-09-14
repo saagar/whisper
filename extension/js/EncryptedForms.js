@@ -1,9 +1,9 @@
 var EncryptedForms = new function ()
 {
-	this.groups = new Array();
+	this.groups = [];
 	this.loaded = false;
 	this.currentGroup = null;
-	this.forms = new Array();
+	this.forms = [];
 	
 	this.syncGroups = function ()
 	{
@@ -45,7 +45,7 @@ var EncryptedForms = new function ()
 	
 	this.add = function(element)
 	{	// if it is a form (supposedly), works for facebook status (confirmed), but not gmail
-		if (element.form != null)
+		if (element.form)
 		{
 			$(element).closest(".uiTypeahead").css({ "background": "top right no-repeat url('"+chrome.extension.getURL("img/lock.png")+"')", "background-color": "#5cff68" });
 			EncryptedForms.forms[element.form.name] = [element, false];
@@ -70,13 +70,13 @@ var EncryptedForms = new function ()
 			alert($(element).closest(".editable").length); // this doesn't work for some reason
 			$(element).closest(".editable").css({ "background": "top right no-repeat url('"+chrome.extension.getURL("img/lock.png")+"')", "background-color": "#5cff68" });
 		}*/
-		else 
-		{ // if it's not a form - works for facebook chat and gchat (confirmed)
+		else { // if it's not a form - works for facebook chat and gchat (confirmed)
 			$(clickedEl).closest("table").css({ "background": "top right no-repeat url('"+chrome.extension.getURL("img/lock.png")+"')", "background-color": "#5cff68" });
 			// second argument true to use event capturing instead of bubbling (described http://www.quirksmode.org/js/events_order.html)
 			// In order to ensure our event listener gets added first, adds the listener to the parent of the clicked element
 			// so that event capturing hits the outside wrapper first and gets our listener first
 			$(clickedEl).parent().get(0).addEventListener('keydown', function(e){ 
+				console.log(clickedEl.value);
 				if (e.keyCode == 13 && !e.shiftKey) { 
 					clickedEl.value = encrypt(EncryptedForms.groups[EncryptedForms.currentGroup], EncryptedForms.currentGroup, clickedEl.value);
 					return false;
