@@ -84,7 +84,7 @@ var EncryptedFormHandler = function() {
 		}
 	}
 
-	this.setupDecryptObserver();
+	// this.setupDecryptObserver();
 };
 
 var encryptedFormHandler = new EncryptedFormHandler();

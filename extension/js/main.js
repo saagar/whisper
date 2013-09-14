@@ -1,6 +1,7 @@
 //content script
 var clickedEl = null;
 var _groups = null;
+var user_logged_in = null;
 
 document.addEventListener("mousedown", function(event){
     //right click
@@ -8,18 +9,18 @@ document.addEventListener("mousedown", function(event){
         clickedEl = event.target;
     }
 }, true);
-	
+  
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
   console.log(request);
-	if(request.method == "enableEncrypt") {
-		encryptedFormHandler.addInput(clickedEl, request.friendName);
+  if(request.method == "enableEncrypt") {
+    encryptedFormHandler.addInput(clickedEl, request.friendName);
   }
-	if(request.method == "enableDecrypt") {
-		decrypt();
+  if(request.method == "enableDecrypt") {
+    decrypt();
   }
-	if(request.method == "newGroup") {
-		encryptedFormHandler.syncGroups();
-	}
+  if(request.method == "newGroup") {
+    encryptedFormHandler.syncGroups();
+  }
 });
 
 // implements a basic rot13
@@ -34,83 +35,75 @@ function rot13(s)
      }).join('');
  }
 
+var wispRegex = /\[\!wisp \| (\w*) \| (\w*) \] ([^\[\|]*) \| ([^\[\|]*) \[\/\/wisp\]/gi;
+
+function wispRegexReplacer(match, sender, recipient, senderMessage, recipientMessage, offset, string) {
+  // console.log(sender, recipient, user_logged_in, senderMessage, recipientMessage);
+  if (!sender || !recipient || !senderMessage || !recipientMessage) {
+    return match;
+  }
+
+  // return match;
+  return decrypt_msg(sender, recipient, senderMessage, recipientMessage);
+}
+
 // AES encryption
 // key is private key
 // value is text
 function encrypt(key, group_id, value){
-	//encrypted = CryptoJS.AES.encrypt(value, key);
-	var aes = new pidCrypt.AES.CBC();
-	var encrypted = aes.encryptText(value, key, {nBits: 256});
-	var encrypted = rot13(value); // this is temporary, rewrite this later
-	return "[!wisp | " + group_id + " ] " + encrypted + " [/wisp]";
+  //encrypted = CryptoJS.AES.encrypt(value, key);
+  var aes = new pidCrypt.AES.CBC();
+  var encrypted = aes.encryptText(value, key, {nBits: 256});
+  var encrypted = rot13(value); // this is temporary, rewrite this later
+  return "[!wisp | " + user_logged_in + " | " +  group_id + " ] " + encrypted + " | "
+    + encrypted + " [//wisp]";
 }
 
 // AES decrypt, after parsing the tag. calls decrypt_msg
-function decrypt (element)
-{
-  var html = $(element).find('*:contains("[!wisp | ")');
-  if (html.length > 0)
-  {
-	 for (var i = html.length-1; i >= 0; i--)
-	 {
-		var ele = $(html[i]);
-		var text = ele.text();
-		if (text.indexOf("[!wisp | ") != -1 && text.indexOf("[/wisp]") != -1)
-		{
-			var result = text.split("[")[1].split("]");
-			var number = result[0].split("|")[1].trim();
-			var encrypted = result[1].trim();
-			ele.text(decrypt_msg(number, encrypted));
-			decrypt();
-		}
-	 }
+function decrypt (element) {
+  var html = $(element).find('*:contains("[//wisp]")');
+  // console.log(html.length, element);
+  if (html.length > 0) {
+    for (var i = html.length-1; i >= 0; i--) {
+      var ele = $(html[i]);
+      if(ele.children().length > 0) continue;
+      // console.log(ele.text());
+      var text = ele.html();
+      // console.log(user_logged_in, text);
+      if (text.indexOf("[!wisp | ") != -1 && text.indexOf("[//wisp]") != -1)
+      {
+        // var result = text.split("[")[1].split("]");
+        // var number = result[0].split("|")[1].trim();
+        // var encrypted = result[1].trim();
+        // ele.text(decrypt_msg(number, encrypted));
+        ele.text(text.replace(wispRegex, wispRegexReplacer));
+        // ele.html(text);
+        // decrypt();
+      }
+    }
   }
 }
-	
+
+$.getJSON('http://whisper-signalfire.herokuapp.com/keystore/user').done(function(data){
+  user_logged_in = data.user;
+  decrypt(document);
+  encryptedFormHandler.setupDecryptObserver();
+});
+  
 // decryption. only decrypts if user is the user_id
 // if so, attempts to use the user's private key to decrypt.
-function decrypt_msg(user_id, msg)
+function decrypt_msg(sender, recipient, senderMessage, recipientMessage)
 {
-	$.getJSON('http://whisper-signalfire.herokuapp.com/keystore/user').done(function(data){
-		user_logged_in = data.user;
-	});
+  if (sender === user_logged_in){
+    // unecrypt using user's private key later
+    return "(wisp to " + recipient + "): " + rot13(senderMessage);
+  } else if (recipient === user_logged_in) {
+    return "(wisp from " + sender + "): " + rot13(recipientMessage);
+  }
+  return "[whisper] You don't have access to this message. [//whisper]";
 
-	if (user_id === user_logged_in){
-		// unecrypt using user's private key later
-		return rot13(msg);
-	}
-	return "[Whisper] You don't have access to this message. [/Whisper]";
 
-	// var key = EncryptedForms.groups[group_id];
-	// if (key == null ){
-		//return "You don't have access to this message.";
-	// }
-	// else
-	// {
-	// 	var aes = new pidCrypt.AES.CBC();
-	// 	var decrypted = aes.decryptText(msg, key, {nBits: 256});
-	// 	return decrypted;
-	// }
+  //  var aes = new pidCrypt.AES.CBC();
+  //  var decrypted = aes.decryptText(msg, key, {nBits: 256});
+  //  return decrypted;
 }
-
-// gets locally stored username information
-// chrome.storage.local.get(["username", "pw"], function(data)
-// {
-// 	$.getJSON("http://www.projectvoid.com/whisper/whisper_controller.php?action=retrieve&username="+data['username']+"&pw="+data['pw'], function (data)
-// 	{
-// 		_groups = data['groups'];
-// 		chrome.storage.local.get("groups", function(data)
-// 		{
-// 			if (_groups != [] && _groups != null)
-// 			{
-// 				var groups = data['groups'];
-// 				for (var i = 0; i < _groups.length; i++)
-// 				{
-// 					groups[_groups[i][0]] = _groups[i][1];
-// 				}
-// 				chrome.storage.local.set({"groups" : groups });
-// 			}
-// 		});
-		
-// 	});
-// });
