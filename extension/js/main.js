@@ -153,7 +153,7 @@ function rot13(s)
      }).join('');
  }
 
-var wispRegex = /\[\!wisp \| (\w*) \| (\w*) \]([^\[\|]*)\|([^\[\|]*)\[\/\/wisp\]/gi;
+var wispRegex = /\[\!wisp \| (\w*) \| (\w*)\]([^\[\|]*)\|([^\[\|]*)\[\/\/wisp\]/gi;
 
 function wispRegexReplacer(match, sender, recipient, senderMessage, recipientMessage, offset, string) {
   // console.log(sender, recipient, user_logged_in, senderMessage, recipientMessage);
@@ -195,20 +195,31 @@ function decrypt (element) {
   if (html.length > 0) {
     for (var i = html.length-1; i >= 0; i--) {
       var ele = $(html[i]);
-      if(ele.is('span.userContent')) console.log(ele.html());
       // Only replace text in elements with no children. Works as long as text
       // is not weirdly formatted.
       // .userContent is FB div
-      if(ele.children().not('wbr').length > 0 || ele.is('span.userContent')) continue;
+      if(ele.children().not('wbr').length > 0 && !ele.is('span.userContent')) continue;
 
       ele.find('wbr').remove();
-      console.log(ele);
 
-      var text = ele.html();
-      console.log(text);
-      if (text.indexOf("[!wisp | ") != -1 && text.indexOf("[//wisp]") != -1)
-      {
-        ele.text(text.replace(wispRegex, wispRegexReplacer));
+      if(ele.is('span.userContent')) {
+        var parentText = ele
+          .clone()    //clone the element
+          .children() //select all the children
+          .remove()   //remove all the children
+          .end()  //again go back to selected element
+          .text();
+        console.log(ele.html());
+        var textWithoutBreaks = $.map(ele.find('span'), function(el){return $(el).text();}).join('') + parentText;
+        ele.text(textWithoutBreaks.replace(wispRegex, wispRegexReplacer));
+      } else {
+
+        var text = ele.html();
+        console.log(text);
+        if (text.indexOf("[!wisp | ") != -1 && text.indexOf("[//wisp]") != -1)
+        {
+          ele.text(text.replace(wispRegex, wispRegexReplacer));
+        }
       }
     }
   }
