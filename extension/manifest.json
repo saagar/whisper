@@ -2,7 +2,7 @@
     "name": "Whisper",
     "description": "Encrypted messaging made easy.",
     "version": "1.0",
-    "background_page": "background.html",
+    "manifest_version": 2,
     "permissions": [
         "tabs", 
         "http://*/*", 
