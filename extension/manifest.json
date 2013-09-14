@@ -1,0 +1,16 @@
+{
+    "name": "Whisper",
+    "description": "Encrypted messaging made easy.",
+    "version": "1.0",
+    "background_page": "background.html",
+    "permissions": [
+        "tabs", 
+        "http://*/*", 
+        "https://*/*"
+    ],
+    "browser_action": {
+        "default_title": "Whisper",
+        "default_icon": "icon.png",
+        "popup": "popup.html"
+    }
+}
