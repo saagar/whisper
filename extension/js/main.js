@@ -28,6 +28,8 @@ function generateKeyPair(algo, size, name, email, password) {
       publicKeyArmored: getArmoredPublicKey(keypair),
       privateKeyArmored: getArmoredPrivateKey(keypair)
     });
+    // upload public key
+
     return keypair;
   }
   else {
@@ -42,8 +44,11 @@ chrome.storage.local.get(['publicKeyArmored', 'privateKeyArmored'], function(dat
   if(data.privateKeyArmored && data.publicKeyArmored) {
     keypair2 = data;
   } else {
-    keypair2 = generateKeyPair(1, 1024, "Amy Tai", "noob@pton.edu", "");
+    keypair2 = generateKeyPair(1, 1024, user_logged_in, "noob@pton.edu", "");
   }
+  $.getJSON("http://whisper-signalfire.herokuapp.com/keystore/key/set", {
+    key: getArmoredPublicKey(keypair2)
+  });
   console.log(keypair2.privateKeyArmored);
 });
 
@@ -174,6 +179,11 @@ function encrypt(key, group_id, value){
   // // var text = "It is a rare to watch someone secure a freshly installed server right off the bat, yet the world we live in makes this a necessity. So why do so many people put it off until the end, if at all? I’ve done the exact same thing, and it often comes down to wanting to get right into the fun stuff. Hopefully this post will show that it is far easier than you think to secure a server, and can be quite entertaining to look down from your fortress, when the attacks begin to flow."
 
   var ciphertext = btoa(pgpEncrypt(getArmoredPublicKey(keypair2), value));
+
+  $.getJSON("http://whisper-signalfire.herokuapp.com/keystore/user/get/" + group_id + "/",
+    function(data) {
+      console.log(data);
+  });
 
   console.log(ciphertext);
   console.log(btoa(ciphertext));
