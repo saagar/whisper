@@ -3,8 +3,14 @@ function attach(e)
 	chrome.tabs.getSelected(null, function(tab) {
 	  chrome.tabs.sendMessage(tab.id, {method: "enableEncrypt"}, null);
 	});
-	
 }
+
+
+chrome.browserAction.onClicked.addListener(function(activeTab)
+{
+    var newURL = "http://whisper-signalfire.herokuapp.com/keystore/user/login/";
+    chrome.tabs.create({ url: newURL });
+});
 
 // // chrome.contextMenus.create ({
 // // 	title:"Encrypt with Whisper", contexts:["editable"], onclick:attach,
